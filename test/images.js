@@ -127,6 +127,7 @@ describe('Images', function() {
       width: 1200,
       height: 800
     });
+    console.log('⚠️', srcset);
     assert.equal(srcset, ['/uploads/attachments/test-test.max.jpg 1200w',
       '/uploads/attachments/test-test.full.jpg 1140w',
       '/uploads/attachments/test-test.two-thirds.jpg 760w',
