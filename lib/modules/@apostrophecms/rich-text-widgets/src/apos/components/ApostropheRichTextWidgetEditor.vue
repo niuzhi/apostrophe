@@ -1,9 +1,10 @@
 <template>
   <div class="apos-richtext-editor">
     <editor-menu-bar :editor="editor">
-      <div class="apos-richtext-menubar" slot-scope="{ commands, isActive }">
-        <component v-for="item in toolbar"
-          v-bind:key="item"
+      <div class="apos-richtext-menubar">
+        <component
+          v-for="item in toolbar"
+          :key="item"
           :is="(tools[item] && tools[item].component) || 'ApostropheTiptapUndefined'"
           :name="item"
           :tool="tools[item]"
@@ -17,7 +18,9 @@
 </template>
 
 <script>
-import { Editor, EditorContent, EditorMenuBar } from 'tiptap';
+import {
+  Editor, EditorContent, EditorMenuBar
+} from 'tiptap';
 import {
   HardBreak,
   ListItem,
@@ -45,15 +48,25 @@ export default {
     EditorContent
   },
   props: {
-    type: String,
-    options: Object,
-    value: Object,
-    docId: String,
-    id: String
-  },
-  computed: {
-    moduleOptions() {
-      return moduleOptionsBody(this.type);
+    type: {
+      type: String,
+      required: true
+    },
+    options: {
+      type: Object,
+      required: true
+    },
+    value: {
+      type: Object,
+      required: true
+    },
+    docId: {
+      type: String,
+      required: true
+    },
+    id: {
+      type: String,
+      required: true
     }
   },
   data() {
@@ -80,14 +93,19 @@ export default {
       }),
       widgetInfo: {
         data: this.value,
-        hasErrors: false,
+        hasErrors: false
       }
-    }
+    };
     return data;
   },
-  beforeDestroy() {
-    this.editor.destroy()
+  computed: {
+    moduleOptions() {
+      return moduleOptionsBody(this.type);
+    }
   },
+  // beforeDestroy() {
+  //   this.editor.destroy();
+  // },
   methods: {
     async update() {
       const content = this.editor.getHTML();

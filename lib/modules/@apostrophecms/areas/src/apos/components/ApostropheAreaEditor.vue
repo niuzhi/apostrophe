@@ -1,17 +1,48 @@
 <template>
   <div class="apos-area">
-    <ApostropheAddWidgetMenu @widgetAdded="insert" :index="0" :choices="choices" :widgetOptions="options.widgets" :docId="docId" />
+    <ApostropheAddWidgetMenu
+      @widgetAdded="insert" :index="0"
+      :choices="choices" :widget-options="options.widgets"
+      :doc-id="docId"
+    />
     <div class="apos-areas-widgets-list">
-      <div class="apos-area-widget-wrapper" v-for="(wrapped, i) in next" :key="wrapped.widget._id">
+      <div
+        class="apos-area-widget-wrapper" v-for="(wrapped, i) in next"
+        :key="wrapped.widget._id"
+      >
         <div class="apos-area-controls">
-          <button v-if="i > 0" @click="up(i)">Up</button>
-          <button v-if="i < next.length - 1" @click="down(i)">Down</button>
-          <button @click="remove(i)">Remove</button>
-          <button @click="edit(i)">Edit</button>
+          <button v-if="i > 0" @click="up(i)">
+            Up
+          </button>
+          <button v-if="i < next.length - 1" @click="down(i)">
+            Down
+          </button>
+          <button @click="remove(i)">
+            Remove
+          </button>
+          <button @click="edit(i)">
+            Edit
+          </button>
         </div>
-        <component v-if="editing[wrapped.widget._id]" @save="editing[wrapped.widget._id] = false" @close="editing[wrapped.widget._id] = false" :is="widgetEditorComponent(wrapped.widget.type)" v-model="wrapped.widget" :options="options.widgets[wrapped.widget.type]" :type="wrapped.widget.type" :docId="docId" :id="wrapped.widget._id" />
-        <component v-if="(!editing[wrapped.widget._id]) || (!widgetIsContextual(wrapped.widget.type))" :is="widgetComponent(wrapped.widget.type)" :options="options.widgets[wrapped.widget.type]" :type="wrapped.widget.type" :docId="docId" :id="wrapped.widget._id" :areaFieldId="fieldId" :value="wrapped.widget" @edit="edit(i)" />
-        <ApostropheAddWidgetMenu @widgetAdded="insert" :index="i + 1" :choices="choices" :widgetOptions="options.widgets" :docId="docId" />
+        <component
+          v-if="editing[wrapped.widget._id]" @save="editing[wrapped.widget._id] = false"
+          @close="editing[wrapped.widget._id] = false" :is="widgetEditorComponent(wrapped.widget.type)"
+          v-model="wrapped.widget" :options="options.widgets[wrapped.widget.type]"
+          :type="wrapped.widget.type" :doc-id="docId"
+          :id="wrapped.widget._id"
+        />
+        <component
+          v-if="(!editing[wrapped.widget._id]) || (!widgetIsContextual(wrapped.widget.type))" :is="widgetComponent(wrapped.widget.type)"
+          :options="options.widgets[wrapped.widget.type]" :type="wrapped.widget.type"
+          :doc-id="docId" :id="wrapped.widget._id"
+          :area-field-id="fieldId" :value="wrapped.widget"
+          @edit="edit(i)"
+        />
+        <ApostropheAddWidgetMenu
+          @widgetAdded="insert" :index="i + 1"
+          :choices="choices" :widget-options="options.widgets"
+          :doc-id="docId"
+        />
       </div>
     </div>
   </div>
@@ -20,6 +51,7 @@
 <script>
 
 import Vue from 'apostrophe/vue';
+import cuid from 'cuid';
 
 export default {
   name: 'ApostropheAreaEditor',
@@ -36,7 +68,7 @@ export default {
     return {
       next: this.items.map(widget => ({ widget })),
       editing: {},
-      droppedItem : {}
+      droppedItem: {}
     };
   },
   computed: {
@@ -133,7 +165,6 @@ export default {
 };
 
 </script>
-
 
 <style>
 .apos-area {

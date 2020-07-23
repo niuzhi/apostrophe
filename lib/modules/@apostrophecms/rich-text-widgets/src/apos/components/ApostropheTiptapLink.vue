@@ -4,24 +4,30 @@
       {{ tool.label }}
     </button>
     <ApostropheModal v-if="active">
-      <template slot="header">
+      <template #header>
         <!-- TODO i18n -->
         <p>Link</p>
       </template>
-      <template slot="body">
+      <template #body>
         <form v-if="active">
           <fieldset>
-            <label for="href">URL</label><input v-model="href" />
+            <label for="href">
+              URL
+            </label><input v-model="href">
           </fieldset>
           <fieldset>
-            <label for="id">Anchor Name</label><input v-model="id" />
+            <label for="id">
+              Anchor Name
+            </label><input v-model="id">
           </fieldset>
           <fieldset>
-            <label for="target">Target</label><input v-model="target" />
+            <label for="target">
+              Target
+            </label><input v-model="target">
           </fieldset>
         </form>
       </template>
-      <template slot="footer">
+      <template #footer>
         <slot name="footer">
           <button class="modal-default-button" @click="close">
             Cancel
@@ -32,10 +38,6 @@
         </slot>
       </template>
     </ApostropheModal>
-  </div>
-</template>
-
-
   </div>
 </template>
 

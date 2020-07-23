@@ -1,6 +1,11 @@
 <template>
-  <select :value="active()" @change="style">
-    <option v-for="style, i in options.styles" :value="i">{{ style.label }}</option>
+  <select :value="active()" @change="useStyle">
+    <option
+      v-for="(style, i) in options.styles" :key="style.label"
+      :value="i"
+    >
+      {{ style.label }}
+    </option>
   </select>
 </template>
 
@@ -29,7 +34,7 @@ export default {
       }
       return 0;
     },
-    style($event) {
+    useStyle($event) {
       const style = this.options.styles[$event.target.value];
 
       this.editor.commands.styles(style);
