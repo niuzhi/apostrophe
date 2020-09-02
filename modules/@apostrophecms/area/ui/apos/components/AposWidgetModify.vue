@@ -1,5 +1,5 @@
 <template>
-  <div class="apos-widget-modify">
+  <div class="apos-widget-controls apos-widget-modify" :class="classes">
     <AposButtonGroup>
       <AposButton
         v-bind="removeButton"
@@ -17,6 +17,10 @@
 
 export default {
   props: {
+    classes: {
+      type: Array,
+      default() { return []; }
+    }
   },
   emits: [ 'edit', 'remove' ],
   data() {

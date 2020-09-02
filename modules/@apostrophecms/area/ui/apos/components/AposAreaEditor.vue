@@ -11,18 +11,24 @@
     <div class="apos-areas-widgets-list">
       <div
         class="apos-area-widget-wrapper"
+        :class="states[i].container"
         v-for="(widget, i) in next"
         :key="widget._id"
+        @mouseover="handleMouseover(i)"
+        @mouseleave="handleMouseleave(i)"
+        @click="handleFocus(i)"
       >
         <AposWidgetMove
           :first="i === 0"
           :last="i === next.length - 1"
           @up="up(i)"
           @down="down(i)"
+          :classes="states[i].move"
         />
         <AposWidgetModify
           @remove="remove(i)"
           @edit="edit(i)"
+          :classes="states[i].modify"
         />
         <component
           v-if="editing[widget._id]"
@@ -102,9 +108,21 @@ export default {
   },
   emits: [ 'changed' ],
   data() {
+    const states = [];
+    this.items.forEach((w, i) => {
+      states[i] = {
+        move: [],
+        modify: [],
+        container: []
+      };
+    });
     return {
       next: this.items,
-      editing: {}
+      editing: {},
+      show: 'apos-show',
+      focus: 'apos-focus',
+      highlight: 'apos-highlight',
+      states
     };
   },
   computed: {
@@ -159,6 +177,49 @@ export default {
     }
   },
   methods: {
+    handleMouseover(i) {
+      const self = this.states[i];
+      if (!self.move.includes(this.show)) {
+        self.move.push(this.show);
+      }
+
+      if (!self.container.includes(this.highlight)) {
+        self.container.push(this.highlight);
+      }
+    },
+
+    handleMouseleave(i) {
+      const self = this.states[i];
+      if (self.move.includes(this.show)) {
+        self.move = self.move.filter(i => { return i !== this.show });
+      }
+
+      if (self.container.includes(this.highlight)) {
+        self.container = self.container.filter(i => { return i !== this.highlight });
+      }
+    },
+
+    handleFocus(i) {
+      const self = this.states[i];
+
+      // show Modify controls
+      if (!self.modify.includes(this.show)) {
+        self.modify.push(this.show);
+      }
+
+      // remove all other focus states
+      for (let k in this.states) {
+        if (this.states[k].container.includes(this.focus)) {
+          this.states[k].container = this.states[k].container.filter(i => { return i !== this.focus });
+        }
+      }
+
+      // add focus state
+      if (!self.container.includes(this.focus)) {
+        self.container.push(this.focus);
+      }
+
+    },
     async up(i) {
       if (this.docId) {
         await apos.http.patch(`${apos.doc.action}/${this.docId}`, {
@@ -304,11 +365,11 @@ export default {
 
 </script>
 
-<style>
+<style scoped>
 .apos-area {
-  margin: 5px;
+  /* margin: 5px;
   padding: 5px;
-  border: 2px solid var(--a-brand-green);
+  border: 2px solid var(--a-brand-green); */
 }
 
 .apos-areas-widgets-list {
@@ -317,5 +378,26 @@ export default {
 
 .apos-area-widget-wrapper {
   position: relative;
+  outline-offset: 10px;
+}
+
+.apos-highlight {
+  outline: 1px dotted var(--a-primary);
+}
+
+.apos-focus {
+  outline: 1px solid var(--a-primary);
+}
+
+/deep/ .apos-widget-controls {
+  position: absolute;
+  opacity: 0.3;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+/deep/ .apos-widget-controls.apos-show {
+  opacity: 1;
+  pointer-events: auto;
 }
 </style>
