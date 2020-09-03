@@ -1,5 +1,5 @@
 <template>
-  <div class="apos-widget-controls apos-widget-move" :class="classes">
+  <div class="apos-widget-controls apos-widget-move">
     <AposButtonGroup direction="vertical">
       <AposButton
         v-bind="upButton"
@@ -27,10 +27,6 @@ export default {
     last: {
       type: Boolean,
       required: true
-    },
-    classes: {
-      type: Array,
-      default() { return []; }
     }
   },
   emits: [ 'up', 'down' ],
@@ -80,7 +76,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .apos-widget-move {
-    // TODO use this to position button group
-  }
 </style>

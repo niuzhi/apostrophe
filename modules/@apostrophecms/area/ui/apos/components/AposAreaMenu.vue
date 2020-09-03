@@ -127,7 +127,8 @@ export default {
         iconOnly: true,
         icon: 'plus-icon',
         type: 'primary',
-        modifiers: [ 'round', 'tiny' ]
+        modifiers: [ 'round', 'tiny' ],
+        iconSize: 11
       }
     };
   },

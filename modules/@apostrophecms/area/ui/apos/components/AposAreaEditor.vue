@@ -1,13 +1,13 @@
 <template>
   <div class="apos-area">
-    <AposAreaMenu
+    <!-- <AposAreaMenu
       @add="insert"
       :menu="choices"
       tip-alignment="left"
       :index="0"
       :widget-options="options.widgets"
       :doc-id="docId"
-    />
+    /> -->
     <div class="apos-areas-widgets-list">
       <div
         class="apos-area-widget-wrapper"
@@ -18,18 +18,39 @@
         @mouseleave="handleMouseleave(i)"
         @click="handleFocus(i)"
       >
-        <AposWidgetMove
-          :first="i === 0"
-          :last="i === next.length - 1"
-          @up="up(i)"
-          @down="down(i)"
-          :classes="states[i].move"
-        />
-        <AposWidgetModify
-          @remove="remove(i)"
-          @edit="edit(i)"
-          :classes="states[i].modify"
-        />
+        <div 
+          class="apos-area-widget-controls apos-area-widget-controls--add"
+          :class="states[i].add"
+          >
+          <AposAreaMenu
+            @add="insert"
+            :menu="choices"
+            :index="i - 1"
+            :widget-options="options.widgets"
+            :doc-id="docId"
+            :autoPosition="false"
+          />
+        </div>
+        <div 
+          class="apos-area-widget-controls apos-area-widget-controls--move"
+          :class="states[i].move"
+        >
+          <AposWidgetMove
+            :first="i === 0"
+            :last="i === next.length - 1"
+            @up="up(i)"
+            @down="down(i)"
+          />
+        </div>
+        <div 
+          class="apos-area-widget-controls apos-area-widget-controls--modify"
+          :class="states[i].modify"
+        >
+          <AposWidgetModify
+            @remove="remove(i)"
+            @edit="edit(i)"
+          />
+        </div>
         <component
           v-if="editing[widget._id]"
           @save="editing[widget._id] = false"
@@ -52,14 +73,19 @@
           :value="widget"
           @edit="edit(i)"
         />
-        <AposAreaMenu
-          @add="insert"
-          :menu="choices"
-          tip-alignment="left"
-          :index="i + 1"
-          :widget-options="options.widgets"
-          :doc-id="docId"
-        />
+        <div 
+          class="apos-area-widget-controls apos-area-widget-controls--add apos-area-widget-controls--add--bottom"
+          :class="states[i].add"
+          >
+          <AposAreaMenu
+            @add="insert"
+            :menu="choices"
+            :index="i + 1"
+            :widget-options="options.widgets"
+            :doc-id="docId"
+            :autoPosition="false"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -113,7 +139,8 @@ export default {
       states[i] = {
         move: [],
         modify: [],
-        container: []
+        container: [],
+        add: []
       };
     });
     return {
@@ -179,10 +206,11 @@ export default {
   methods: {
     handleMouseover(i) {
       const self = this.states[i];
+      // show move
       if (!self.move.includes(this.show)) {
         self.move.push(this.show);
       }
-
+      // highlight widget container
       if (!self.container.includes(this.highlight)) {
         self.container.push(this.highlight);
       }
@@ -190,33 +218,42 @@ export default {
 
     handleMouseleave(i) {
       const self = this.states[i];
-      if (self.move.includes(this.show)) {
-        self.move = self.move.filter(i => { return i !== this.show });
-      }
+      // hide move controls
+      self.move = self.move.filter(i => { return i !== this.show });
 
-      if (self.container.includes(this.highlight)) {
-        self.container = self.container.filter(i => { return i !== this.highlight });
-      }
+      // remove hover visual
+      self.container = self.container.filter(i => { return i !== this.highlight });
+
+      // remove 
     },
 
     handleFocus(i) {
       const self = this.states[i];
+
+      // remove all other focus states
+      for (let k in this.states) {
+        this.states[k].container = this.states[k].container.filter(i => { return i !== this.focus });
+        this.states[k].modify = this.states[k].modify.filter(i => { return i !== this.show });
+        this.states[k].add = this.states[k].add.filter(i => { return i !== this.show });
+        this.states[k].move = this.states[k].move.filter(i => { return i !== this.focus });
+      }
 
       // show Modify controls
       if (!self.modify.includes(this.show)) {
         self.modify.push(this.show);
       }
 
-      // remove all other focus states
-      for (let k in this.states) {
-        if (this.states[k].container.includes(this.focus)) {
-          this.states[k].container = this.states[k].container.filter(i => { return i !== this.focus });
-        }
-      }
-
-      // add focus state
+      // add focus states
       if (!self.container.includes(this.focus)) {
         self.container.push(this.focus);
+      }
+      if (!self.move.includes(this.focus)) {
+        self.move.push(this.focus);
+      }
+
+      // show Add controls
+      if (!self.add.includes(this.show)) {
+        self.add.push(this.show);
       }
 
     },
@@ -365,7 +402,8 @@ export default {
 
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+$offset-0: 10px;
 .apos-area {
   /* margin: 5px;
   padding: 5px;
@@ -378,26 +416,51 @@ export default {
 
 .apos-area-widget-wrapper {
   position: relative;
-  outline-offset: 10px;
+  min-height: 50px;
+  outline-offset: $offset-0;
 }
 
 .apos-highlight {
   outline: 1px dotted var(--a-primary);
 }
 
-.apos-focus {
+.apos-area-widget-wrapper.apos-focus {
+  z-index: $z-index-default;
   outline: 1px solid var(--a-primary);
 }
 
-/deep/ .apos-widget-controls {
+.apos-area-widget-controls {
   position: absolute;
-  opacity: 0.3;
+  opacity: 0;
   pointer-events: none;
   transition: all 0.3s ease;
 }
 
-/deep/ .apos-widget-controls.apos-show {
+.apos-area-widget-controls--move {
+  top: 50%;
+  left: calc(-1 * #{$offset-0 + 5});
+  transform: translate3d(-100%, -50%, 0);
+}
+
+.apos-area-widget-controls--move.apos-focus {
   opacity: 1;
   pointer-events: auto;
+}
+
+.apos-area-widget-controls.apos-show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.apos-area-widget-controls--add {
+  top: 0;
+  left: 50%;
+  transform: translate3d(-50%, calc(-50% - #{$offset-0}), 0);
+}
+
+.apos-area-widget-controls--add--bottom {
+  top: auto;
+  bottom: 0;
+  transform: translate3d(-50%, calc(50% + #{$offset-0}), 0);
 }
 </style>
