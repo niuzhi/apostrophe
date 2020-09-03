@@ -8,7 +8,7 @@
     <!-- TODO refactor buttons to take a single config obj -->
     <AposButton
       class="apos-context-menu__btn"
-      @click="buttonClicked"
+      @click="buttonClicked($event)"
       v-bind="button"
       :state="buttonState"
       ref="button"
@@ -111,8 +111,10 @@ export default {
     open(newVal, oldVal) {
       if (newVal) {
         this.positionPopup();
+        this.$emit('open');
+      } else {
+        this.$emit('close');
       }
-      this.$emit('open', newVal);
     }
   },
   methods: {
@@ -120,6 +122,7 @@ export default {
       this.open = false;
     },
     bind() {
+      console.log('get bound');
       document.addEventListener('click', this.clicks);
       document.addEventListener('keydown', this.keyboard);
       window.addEventListener('resize', this.positionPopup);
@@ -137,13 +140,14 @@ export default {
       }
     },
     clicks (event) {
+      console.log('i fire');
       // if user clicks outside menu component, close menu
       if (!this.$el.contains(event.target)) {
         this.close();
         this.unbind();
       }
     },
-    buttonClicked() {
+    buttonClicked($event) {
       this.open = !this.open;
       if (this.open) {
         this.bind();
@@ -225,6 +229,10 @@ export default {
     transform: scale(0.98) translateY(-8px);
     transform-origin: top left;
     transition: scale 0.15s ease, translatey 0.15s ease;
+  }
+
+  .apos-context-menu__popup {
+    position: absolute;
   }
 
   .apos-context-menu--fixed .apos-context-menu__popup {

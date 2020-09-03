@@ -1,6 +1,6 @@
 <template>
   <button
-    @click="click"
+    @click="click($event)"
     class="apos-button"
     :class="modifierClass" :tabindex="tabindex"
     :disabled="isDisabled"
@@ -136,8 +136,8 @@ export default {
     }
   },
   methods: {
-    click() {
-      this.$emit('click');
+    click($event) {
+      this.$emit('click', $event);
     }
   }
 };
@@ -424,6 +424,10 @@ export default {
   .apos-button__icon {
     margin-right: 0;
   }
+}
+
+.apos-button--icon.apos-button--small {
+  padding: 7.5px 10px;
 }
 
 .apos-button__label {

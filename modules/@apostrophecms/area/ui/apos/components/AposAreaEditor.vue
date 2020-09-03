@@ -1,13 +1,12 @@
 <template>
   <div class="apos-area">
-    <!-- <AposAreaMenu
+    <AposAreaMenu
       @add="insert"
-      :menu="choices"
-      tip-alignment="left"
+      v-bind:contextOptions="addContextOpts"
       :index="0"
       :widget-options="options.widgets"
       :doc-id="docId"
-    /> -->
+    />
     <div class="apos-areas-widgets-list">
       <div
         class="apos-area-widget-wrapper"
@@ -20,15 +19,16 @@
       >
         <div 
           class="apos-area-widget-controls apos-area-widget-controls--add"
-          :class="states[i].add"
+          :class="states[i].addTop"
           >
           <AposAreaMenu
             @add="insert"
-            :menu="choices"
+            @menuOpen="addOpen(i, 'addTop')"
+            @menuClose="addClose(i, 'addTop')"
+            v-bind:contextOptions="addContextOpts"
             :index="i - 1"
             :widget-options="options.widgets"
             :doc-id="docId"
-            :autoPosition="false"
           />
         </div>
         <div 
@@ -75,15 +75,14 @@
         />
         <div 
           class="apos-area-widget-controls apos-area-widget-controls--add apos-area-widget-controls--add--bottom"
-          :class="states[i].add"
+          :class="states[i].addBottom"
           >
           <AposAreaMenu
             @add="insert"
-            :menu="choices"
+            v-bind:contextOptions="addContextOpts"
             :index="i + 1"
             :widget-options="options.widgets"
             :doc-id="docId"
-            :autoPosition="false"
           />
         </div>
       </div>
@@ -140,16 +139,22 @@ export default {
         move: [],
         modify: [],
         container: [],
-        add: []
+        addTop: [],
+        addBottom: []
       };
     });
     return {
       next: this.items,
       editing: {},
       show: 'apos-show',
+      open: 'apos-open',
       focus: 'apos-focus',
       highlight: 'apos-highlight',
-      states
+      states,
+      addContextOpts: {
+        autoPosition: false,
+        menu: this.choices
+      }
     };
   },
   computed: {
@@ -204,6 +209,18 @@ export default {
     }
   },
   methods: {
+    addOpen(i, who) {
+      console.log('iiiiiiii');
+      const self = this.states[i][who];
+      if (!self.includes(this.open)) {
+        self.push(this.open);
+      }
+    },
+    addClose(i, who) {
+      console.log('do i go');
+      this.states[i][who] = this.states[i][who].filter(e => { return e !== this.open });
+      console.log(this.states[i][who]);
+    },
     handleMouseover(i) {
       const self = this.states[i];
       // show move
@@ -234,7 +251,8 @@ export default {
       for (let k in this.states) {
         this.states[k].container = this.states[k].container.filter(i => { return i !== this.focus });
         this.states[k].modify = this.states[k].modify.filter(i => { return i !== this.show });
-        this.states[k].add = this.states[k].add.filter(i => { return i !== this.show });
+        this.states[k].addTop = this.states[k].addTop.filter(i => { return i !== this.show });
+        this.states[k].addBottom = this.states[k].addBottom.filter(i => { return i !== this.show });
         this.states[k].move = this.states[k].move.filter(i => { return i !== this.focus });
       }
 
@@ -252,8 +270,11 @@ export default {
       }
 
       // show Add controls
-      if (!self.add.includes(this.show)) {
-        self.add.push(this.show);
+      if (!self.addBottom.includes(this.show)) {
+        self.addBottom.push(this.show);
+      }
+      if (!self.addTop.includes(this.show)) {
+        self.addTop.push(this.show);
       }
 
     },
@@ -436,6 +457,10 @@ $offset-0: 10px;
   transition: all 0.3s ease;
 }
 
+.apos-area-widget-controls--modify {
+  top: calc(-1 * #{$offset-0});
+  transform: translateY(-85%);
+}
 .apos-area-widget-controls--move {
   top: 50%;
   left: calc(-1 * #{$offset-0 + 5});
@@ -458,9 +483,19 @@ $offset-0: 10px;
   transform: translate3d(-50%, calc(-50% - #{$offset-0}), 0);
 }
 
+.apos-area-widget-controls--add.apos-open {
+  z-index: $z-index-default;
+}
+
 .apos-area-widget-controls--add--bottom {
   top: auto;
   bottom: 0;
   transform: translate3d(-50%, calc(50% + #{$offset-0}), 0);
+}
+
+.apos-area /deep/ .apos-context-menu__popup.is-visible {
+  top: calc(100% + 20px);
+  left: 50%;
+  transform: translate(-50%, 0);
 }
 </style>
